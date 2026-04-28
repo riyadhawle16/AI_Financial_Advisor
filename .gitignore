@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.env
+.venv
+venv/
+env/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Data (large generated file)
+ml_models/financial_data.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kiro
+.kiro/
