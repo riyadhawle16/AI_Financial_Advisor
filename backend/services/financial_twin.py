@@ -207,5 +207,128 @@ def compute_financial_twin(
             "recommendation_text": recommendation,
         }
 
+    # ── SCENARIO 4: Salary Growth ────────────────────────────────────────────
+    elif scenario_type == "salary_growth":
+        growth_rates = scenario_parameters.get("growth_rates", [5, 10, 15, 20])
+        years = int(scenario_parameters.get("years", 5))
+
+        baseline_surplus = surplus
+        baseline_proj = {
+            "label": "Current Salary",
+            "growth_pct": 0,
+            "new_income": round(income, 2),
+            "monthly_surplus": round(baseline_surplus, 2),
+            "savings_5y": _sip_fv(baseline_surplus, years, annual_return),
+            "score_estimate": baseline_score,
+            "timeline": _timeline_series(baseline_surplus, annual_return, CHECKPOINTS),
+        }
+
+        scenarios = []
+        for pct in growth_rates:
+            new_income = income * (1 + pct / 100)
+            new_surplus = _monthly_surplus(new_income, expenses)
+            new_sav = savings + (new_surplus - baseline_surplus)
+            new_score = _score_estimate(new_income, expenses, new_sav, debt)
+            scenarios.append({
+                "label": f"+{pct}% Salary",
+                "growth_pct": pct,
+                "new_income": round(new_income, 2),
+                "monthly_surplus": round(new_surplus, 2),
+                "savings_5y": _sip_fv(new_surplus, years, annual_return),
+                "score_estimate": new_score,
+                "timeline": _timeline_series(new_surplus, annual_return, CHECKPOINTS),
+            })
+
+        best = max(scenarios, key=lambda s: s["score_estimate"])
+        recommendation = (
+            f"A {best['growth_pct']}% salary increase raises your monthly surplus to "
+            f"₹{best['monthly_surplus']:,.0f} and projected {years}-year corpus to "
+            f"₹{best['savings_5y']:,.0f}. Focus on upskilling to achieve this growth."
+        )
+        return {
+            "scenario_type": "salary_growth",
+            "baseline": baseline_proj,
+            "scenarios": scenarios,
+            "checkpoints": CHECKPOINTS,
+            "recommended_scenario": best["label"],
+            "recommendation_text": recommendation,
+        }
+
+    # ── SCENARIO 5: Job Loss ─────────────────────────────────────────────────
+    elif scenario_type == "job_loss":
+        loss_durations = scenario_parameters.get("loss_durations", [1, 3, 6])
+        monthly_expenses_during_loss = scenario_parameters.get("monthly_expenses", expenses * 0.7)
+
+        emergency_fund = savings
+        results = []
+        for months in loss_durations:
+            total_cost = monthly_expenses_during_loss * months
+            remaining_savings = max(savings - total_cost, 0)
+            fund_covers = "Yes" if savings >= total_cost else "No"
+            shortfall = max(total_cost - savings, 0)
+            recovery_months = round(shortfall / max(surplus, 1)) if shortfall > 0 else 0
+            new_score = _score_estimate(income, expenses, remaining_savings, debt)
+            results.append({
+                "label": f"{months}-Month Job Loss",
+                "duration_months": months,
+                "total_cost": round(total_cost, 2),
+                "remaining_savings": round(remaining_savings, 2),
+                "fund_covers": fund_covers,
+                "shortfall": round(shortfall, 2),
+                "recovery_months": recovery_months,
+                "score_after": new_score,
+            })
+
+        recommended_fund = round(expenses * 6, 2)
+        gap = max(recommended_fund - savings, 0)
+        recommendation = (
+            f"Your current savings of ₹{savings:,.0f} covers "
+            f"{'all tested' if all(r['fund_covers'] == 'Yes' for r in results) else 'only short'} job loss scenarios. "
+            f"Recommended emergency fund: ₹{recommended_fund:,.0f} (6 months expenses). "
+            + (f"Build ₹{gap:,.0f} more to be fully protected." if gap > 0 else "You are well protected.")
+        )
+        return {
+            "scenario_type": "job_loss",
+            "current_savings": savings,
+            "recommended_emergency_fund": recommended_fund,
+            "results": results,
+            "recommendation_text": recommendation,
+        }
+
+    # ── SCENARIO 6: Emergency Expense ────────────────────────────────────────
+    elif scenario_type == "emergency_expense":
+        amounts = scenario_parameters.get("amounts", [50000, 100000, 200000])
+        labels = scenario_parameters.get("labels", ["Minor Emergency", "Major Emergency", "Critical Emergency"])
+
+        results = []
+        for i, amount in enumerate(amounts):
+            label = labels[i] if i < len(labels) else f"₹{amount:,.0f} Emergency"
+            remaining = max(savings - amount, 0)
+            covered = savings >= amount
+            shortfall = max(amount - savings, 0)
+            months_to_recover = round(shortfall / max(surplus, 1)) if shortfall > 0 else 0
+            new_score = _score_estimate(income, expenses, remaining, debt)
+            results.append({
+                "label": label,
+                "emergency_amount": round(amount, 2),
+                "savings_after": round(remaining, 2),
+                "covered_by_savings": covered,
+                "shortfall": round(shortfall, 2),
+                "months_to_recover": months_to_recover,
+                "score_after": new_score,
+            })
+
+        recommendation = (
+            f"Your savings of ₹{savings:,.0f} can cover "
+            f"{sum(1 for r in results if r['covered_by_savings'])} of {len(results)} emergency scenarios. "
+            f"Build an emergency fund of at least ₹{max(amounts):,.0f} to be fully protected."
+        )
+        return {
+            "scenario_type": "emergency_expense",
+            "current_savings": savings,
+            "results": results,
+            "recommendation_text": recommendation,
+        }
+
     else:
         return {"error": f"Unknown scenario_type: {scenario_type}"}

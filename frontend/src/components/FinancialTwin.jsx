@@ -330,7 +330,200 @@ function InflationView({ result }) {
   );
 }
 
-// ── main component ────────────────────────────────────────────────────────────
+// ── Salary Growth View ───────────────────────────────────────────────────────
+function SalaryGrowthView({ result }) {
+  const { baseline, scenarios, recommendation_text, recommended_scenario } = result;
+  const [timelineYear, setTimelineYear] = useState(1);
+  const yearIdx = CHECKPOINTS.indexOf(timelineYear);
+  const allSeries = [baseline, ...scenarios];
+
+  const lineData = {
+    labels: CHECKPOINTS.map(y => `${y}yr`),
+    datasets: allSeries.map((s, i) => ({
+      label: s.label,
+      data: s.timeline,
+      borderColor: SCENARIO_COLORS[i]?.line || "#3B82F6",
+      backgroundColor: SCENARIO_COLORS[i]?.fill || "transparent",
+      pointRadius: 4, tension: 0.35, fill: false,
+    })),
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(allSeries.length, 3)}, 1fr)`, gap: 12 }}>
+        {allSeries.map((s, i) => <ScenarioCard key={i} data={s} colorIdx={i} isBaseline={i === 0} />)}
+      </div>
+      <div style={glass}>
+        <p style={{ ...label, marginBottom: 12 }}>Future Timeline — {timelineYear} Year{timelineYear > 1 ? "s" : ""}</p>
+        <input type="range" min="0" max="3" step="1" value={CHECKPOINTS.indexOf(timelineYear)}
+          onChange={e => setTimelineYear(CHECKPOINTS[+e.target.value])}
+          style={{ width: "100%", accentColor: "#3B82F6", marginBottom: 16 }} />
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(allSeries.length, 3)}, 1fr)`, gap: 10 }}>
+          {allSeries.map((s, i) => (
+            <MetricTile key={i} label={s.label} value={fmt(s.timeline[yearIdx] || 0)} color={SCENARIO_COLORS[i]?.badge} sub={`at ${timelineYear}yr`} />
+          ))}
+        </div>
+      </div>
+      <div style={glass}>
+        <p style={{ ...label, marginBottom: 16 }}>Corpus Growth by Salary Scenario</p>
+        <Line data={lineData} options={chartOpts} />
+      </div>
+      <div style={{ ...glass, background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.25)" }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#3B82F6,#06B6D4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>◎</div>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#3B82F6", margin: "0 0 6px" }}>AI Recommendation</p>
+            <p style={{ fontSize: 13, color: "#CBD5E1", margin: 0, lineHeight: 1.7 }}>{recommendation_text}</p>
+            <div style={{ marginTop: 10, display: "inline-block", padding: "4px 12px", borderRadius: 50, background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", fontSize: 12, color: "#10B981", fontWeight: 600 }}>
+              Best: {recommended_scenario}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Job Loss View ─────────────────────────────────────────────────────────────
+function JobLossView({ result }) {
+  const { results, current_savings, recommended_emergency_fund, recommendation_text } = result;
+  const gap = Math.max(recommended_emergency_fund - current_savings, 0);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Summary bar */}
+      <div style={{ ...glass, background: gap > 0 ? "rgba(245,158,11,0.06)" : "rgba(16,185,129,0.06)", border: `1px solid ${gap > 0 ? "rgba(245,158,11,0.25)" : "rgba(16,185,129,0.25)"}` }}>
+        <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+          <div>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#94A3B8", margin: "0 0 4px" }}>Current Savings</p>
+            <p style={{ fontSize: 20, fontWeight: 800, color: "#F8FAFC", margin: 0 }}>{fmt(current_savings)}</p>
+          </div>
+          <div>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#94A3B8", margin: "0 0 4px" }}>Recommended Fund</p>
+            <p style={{ fontSize: 20, fontWeight: 800, color: "#10B981", margin: 0 }}>{fmt(recommended_emergency_fund)}</p>
+          </div>
+          {gap > 0 && (
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#94A3B8", margin: "0 0 4px" }}>Gap to Fill</p>
+              <p style={{ fontSize: 20, fontWeight: 800, color: "#F59E0B", margin: 0 }}>{fmt(gap)}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Scenario cards */}
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${results.length}, 1fr)`, gap: 12 }}>
+        {results.map((r, i) => {
+          const color = r.fund_covers === "Yes" ? "#10B981" : "#EF4444";
+          return (
+            <div key={i} style={{ ...glass, background: `${color}08`, border: `1px solid ${color}33` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, boxShadow: `0 0 6px ${color}` }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#F8FAFC" }}>{r.label}</span>
+              </div>
+              {[
+                ["Total Cost", fmt(r.total_cost)],
+                ["Savings After", fmt(r.remaining_savings)],
+                ["Covered?", r.fund_covers],
+                ["Shortfall", r.shortfall > 0 ? fmt(r.shortfall) : "None"],
+                ["Recovery Time", r.recovery_months > 0 ? `${r.recovery_months} months` : "Immediate"],
+              ].map(([k, v]) => (
+                <div key={k} style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, color: "#94A3B8" }}>{k}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: k === "Covered?" ? (v === "Yes" ? "#10B981" : "#EF4444") : "#F8FAFC" }}>{v}</span>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Recommendation */}
+      <div style={{ ...glass, background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.25)" }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#F59E0B,#EF4444)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>⚠</div>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#F59E0B", margin: "0 0 6px" }}>Job Loss Risk Analysis</p>
+            <p style={{ fontSize: 13, color: "#CBD5E1", margin: 0, lineHeight: 1.7 }}>{recommendation_text}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Emergency Expense View ────────────────────────────────────────────────────
+function EmergencyView({ result }) {
+  const { results, current_savings, recommendation_text } = result;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${results.length}, 1fr)`, gap: 12 }}>
+        {results.map((r, i) => {
+          const color = r.covered_by_savings ? "#10B981" : "#EF4444";
+          return (
+            <div key={i} style={{ ...glass, background: `${color}08`, border: `1px solid ${color}33` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, boxShadow: `0 0 6px ${color}` }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#F8FAFC" }}>{r.label}</span>
+              </div>
+              {[
+                ["Emergency Amount", fmt(r.emergency_amount)],
+                ["Savings After", fmt(r.savings_after)],
+                ["Covered?", r.covered_by_savings ? "Yes ✓" : "No ✗"],
+                ["Shortfall", r.shortfall > 0 ? fmt(r.shortfall) : "None"],
+                ["Recovery", r.months_to_recover > 0 ? `${r.months_to_recover} months` : "Immediate"],
+                ["Score After", `${r.score_after}/100`],
+              ].map(([k, v]) => (
+                <div key={k} style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, color: "#94A3B8" }}>{k}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: k === "Covered?" ? (r.covered_by_savings ? "#10B981" : "#EF4444") : "#F8FAFC" }}>{v}</span>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Current savings bar */}
+      <div style={glass}>
+        <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94A3B8", margin: "0 0 12px" }}>
+          Current Savings: {fmt(current_savings)}
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {results.map((r, i) => {
+            const pct = Math.min((current_savings / r.emergency_amount) * 100, 100);
+            const color = r.covered_by_savings ? "#10B981" : "#EF4444";
+            return (
+              <div key={i}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: "#94A3B8" }}>{r.label}</span>
+                  <span style={{ fontSize: 11, color }}>{pct.toFixed(0)}% covered</span>
+                </div>
+                <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 3, transition: "width 0.8s ease" }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Recommendation */}
+      <div style={{ ...glass, background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.25)" }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#EF4444,#F59E0B)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>🚨</div>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#EF4444", margin: "0 0 6px" }}>Emergency Preparedness</p>
+            <p style={{ fontSize: 13, color: "#CBD5E1", margin: 0, lineHeight: 1.7 }}>{recommendation_text}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main FinancialTwin component ──────────────────────────────────────────────
 
 export default function FinancialTwin() {
   const [scenarioType, setScenarioType] = useState("expense_reduction");
@@ -360,6 +553,15 @@ export default function FinancialTwin() {
     }
     if (scenarioType === "inflation_stress") {
       return { inflation_rates: [4, 6, 8], years };
+    }
+    if (scenarioType === "salary_growth") {
+      return { growth_rates: [5, 10, 15, 20], years };
+    }
+    if (scenarioType === "job_loss") {
+      return { loss_durations: [1, 3, 6] };
+    }
+    if (scenarioType === "emergency_expense") {
+      return { amounts: [50000, 100000, 200000], labels: ["Minor (₹50K)", "Major (₹1L)", "Critical (₹2L)"] };
     }
     return {};
   };
@@ -393,6 +595,9 @@ export default function FinancialTwin() {
     { id: "expense_reduction", icon: "📉", label: "Expense Reduction" },
     { id: "sip_growth",        icon: "📈", label: "SIP Growth" },
     { id: "inflation_stress",  icon: "🔥", label: "Inflation Stress" },
+    { id: "salary_growth",     icon: "💼", label: "Salary Growth" },
+    { id: "job_loss",          icon: "⚠️", label: "Job Loss" },
+    { id: "emergency_expense", icon: "🚨", label: "Emergency" },
   ];
 
   return (
@@ -489,6 +694,9 @@ export default function FinancialTwin() {
           {result.scenario_type === "expense_reduction" && <ExpenseReductionView result={result} />}
           {result.scenario_type === "sip_growth"        && <SipGrowthView result={result} />}
           {result.scenario_type === "inflation_stress"  && <InflationView result={result} />}
+          {result.scenario_type === "salary_growth"     && <SalaryGrowthView result={result} />}
+          {result.scenario_type === "job_loss"          && <JobLossView result={result} />}
+          {result.scenario_type === "emergency_expense" && <EmergencyView result={result} />}
         </div>
       )}
 
