@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import Any, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -9,4 +9,5 @@ class ChatInput(BaseModel):
 
     financial_score: Optional[float] = None
     insights: Optional[List[str]] = None
-
+    recommendations: Optional[List[str]] = None
+    roadmap: Optional[List[Any]] = None

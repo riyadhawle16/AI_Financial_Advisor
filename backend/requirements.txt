@@ -7,3 +7,5 @@ joblib
 pydantic
 shap
 reportlab
+groq
+python-dotenv

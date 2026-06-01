@@ -1,7 +1,11 @@
+import logging
+import io
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-import io
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 try:
     from .schemas.user_schema import UserInput
@@ -25,6 +29,13 @@ try:
     from .services.portfolio import generate_portfolio
     from .services.shap_explainer import get_shap_values
     from .services.pdf_report import generate_pdf_report
+    from .services.gemini_service import (
+        get_gemini_response,
+        build_chat_prompt,
+        is_gemini_available,
+        get_gemini_init_error,
+    )
+
 except ImportError:
     from schemas.user_schema import UserInput
     from schemas.forecast_schema import ForecastInput
@@ -47,11 +58,17 @@ except ImportError:
     from services.portfolio import generate_portfolio
     from services.shap_explainer import get_shap_values
     from services.pdf_report import generate_pdf_report
+    from services.gemini_service import (
+        get_gemini_response,
+        build_chat_prompt,
+        is_gemini_available,
+        get_gemini_init_error,
+    )
 
 app = FastAPI(
     title="AI Financial Advisor API",
     description="Backend for AI-powered financial decision system",
-    version="2.0"
+    version="2.0",
 )
 
 app.add_middleware(
@@ -63,12 +80,23 @@ app.add_middleware(
 )
 
 
+# ── Health / root ─────────────────────────────────────────────────────────────
 @app.get("/")
 def home():
     return {"message": "FinanceAI API v2.0 is running"}
 
 
-# ── Core analyze endpoint (extended) ─────────────────────────────────────────
+@app.get("/chat/status")
+def chat_status():
+    """Diagnostic endpoint — shows whether Gemini is active."""
+    return {
+        "gemini_available": is_gemini_available(),
+        "gemini_error": get_gemini_init_error(),
+        "active_engine": "gemini" if is_gemini_available() else "rule-based fallback",
+    }
+
+
+# ── Core analyze endpoint ─────────────────────────────────────────────────────
 @app.post("/analyze")
 def analyze_finance(data: UserInput):
     score = predict_financial_score(data)
@@ -99,7 +127,7 @@ def analyze_finance(data: UserInput):
     }
 
 
-# ── Existing endpoints ────────────────────────────────────────────────────────
+# ── Simulate / Forecast ───────────────────────────────────────────────────────
 @app.post("/simulate")
 def simulate(data: SimulateInput):
     result = calculate_future_value(data.monthly_investment, data.years, data.expected_return)
@@ -111,17 +139,59 @@ def forecast(data: ForecastInput):
     return {"forecast": forecast_savings(income=data.income, expenses=data.expenses, months=data.months)}
 
 
+# ── Chat (Gemini primary, rule-based fallback) ────────────────────────────────
 @app.post("/chat")
 def chat(data: ChatInput):
-    reply = generate_reply(
+    # Build context-rich prompt
+    prompt = build_chat_prompt(
         message=data.message,
-        risk_tolerance=data.risk_tolerance,
         financial_score=data.financial_score,
+        risk_tolerance=data.risk_tolerance,
         insights=data.insights,
+        recommendations=data.recommendations,
+        roadmap=data.roadmap,
     )
-    return {"reply": reply}
+
+    # ── Primary: Gemini ───────────────────────────────────────────────────────
+    if is_gemini_available():
+        try:
+            reply = get_gemini_response(prompt)
+            logger.info("Chat served by Gemini.")
+            return {"reply": reply, "source": "gemini"}
+        except Exception as gemini_error:
+            logger.warning("Gemini call failed at runtime: %s", gemini_error)
+            # fall through to rule-based fallback
+    else:
+        logger.info(
+            "Gemini unavailable (%s). Using rule-based fallback.",
+            get_gemini_init_error(),
+        )
+
+    # ── Fallback: rule-based chatbot ──────────────────────────────────────────
+    try:
+        reply = generate_reply(
+            message=data.message,
+            risk_tolerance=data.risk_tolerance,
+            financial_score=data.financial_score,
+            insights=data.insights,
+        )
+        return {
+            "reply": reply,
+            "source": "fallback",
+            "note": (
+                "Gemini is not available. "
+                "Set a valid GEMINI_API_KEY in backend/.env to enable AI responses. "
+                "Get one free at https://aistudio.google.com/app/apikey"
+            ),
+        }
+    except Exception as fallback_error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Both Gemini and fallback chatbot failed. Error: {fallback_error}",
+        )
 
 
+# ── Financial Twin ────────────────────────────────────────────────────────────
 @app.post("/financial-twin")
 def financial_twin(data: FinancialTwinInput):
     return compute_financial_twin(
@@ -134,7 +204,7 @@ def financial_twin(data: FinancialTwinInput):
     )
 
 
-# ── New v2 endpoints ──────────────────────────────────────────────────────────
+# ── Goal Planner ──────────────────────────────────────────────────────────────
 @app.post("/goal-planner")
 def goal_planner(data: GoalInput):
     return calculate_goal(
@@ -146,6 +216,7 @@ def goal_planner(data: GoalInput):
     )
 
 
+# ── Portfolio ─────────────────────────────────────────────────────────────────
 @app.post("/portfolio")
 def portfolio(data: PortfolioInput):
     return generate_portfolio(
@@ -155,6 +226,7 @@ def portfolio(data: PortfolioInput):
     )
 
 
+# ── PDF Report ────────────────────────────────────────────────────────────────
 @app.post("/report")
 def download_report(data: ReportRequest):
     try:
@@ -162,7 +234,7 @@ def download_report(data: ReportRequest):
         return StreamingResponse(
             io.BytesIO(pdf_bytes),
             media_type="application/pdf",
-            headers={"Content-Disposition": "attachment; filename=FinanceAI_Report.pdf"}
+            headers={"Content-Disposition": "attachment; filename=FinanceAI_Report.pdf"},
         )
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))
