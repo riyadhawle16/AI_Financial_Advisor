@@ -84,7 +84,7 @@ export default function SimulatorTab() {
 
       {/* Calculator card */}
       <div className="glass-card" style={{ padding: 28 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
+        <div className="simulator-grid">
           <div>
             <label style={labelStyle}>Monthly Investment (₹)</label>
             <input

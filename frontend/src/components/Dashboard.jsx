@@ -90,10 +90,10 @@ export default function Dashboard({ onAnalyze }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 32 }} className="fade-in">
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
+      <div className="dashboard-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
         <div>
           <p style={sectionLabel}>AI-Powered Platform</p>
-          <h1 style={{ fontSize: 32, fontWeight: 800, margin: 0, background: "linear-gradient(135deg,#F8FAFC,#94A3B8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h1 className="dashboard-title" style={{ fontSize: 32, fontWeight: 800, margin: 0, background: "linear-gradient(135deg,#F8FAFC,#94A3B8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Financial Intelligence Dashboard
           </h1>
           <p style={{ color: "#94A3B8", marginTop: 6, fontSize: 14 }}>
@@ -104,7 +104,7 @@ export default function Dashboard({ onAnalyze }) {
       </div>
 
       {/* Main grid: form + health */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="dashboard-main-grid">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <InputForm onSubmit={handleSubmit} loading={loading} />
           {error && (

@@ -91,7 +91,7 @@ export default function PortfolioGenerator({ defaultScore = null }) {
 
       {/* Input */}
       <div style={glass}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+        <div className="portfolio-input-grid">
           <div>
             <label style={lbl}>Your Age</label>
             <input name="age" type="number" min="18" max="80" placeholder="e.g. 28"
@@ -135,7 +135,7 @@ export default function PortfolioGenerator({ defaultScore = null }) {
       )}
 
       {result && (
-        <div className="fade-in" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+        <div className="portfolio-result-grid fade-in">
           {/* Pie chart */}
           <div style={glass}>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94A3B8", margin: "0 0 4px" }}>
@@ -172,7 +172,7 @@ export default function PortfolioGenerator({ defaultScore = null }) {
           </div>
 
           {/* Summary + note */}
-          <div style={{ ...glass, gridColumn: "1 / -1", background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)" }}>
+          <div className="portfolio-summary" style={{ ...glass, gridColumn: "1 / -1", background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)" }}>
             <p style={{ fontSize: 13, color: "#CBD5E1", margin: "0 0 8px", lineHeight: 1.7 }}>{result.summary}</p>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "10px 14px", borderRadius: 10, background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}>
               <span style={{ color: "#F59E0B", flexShrink: 0 }}>⚡</span>

@@ -103,7 +103,7 @@ export default function InputForm({ onSubmit, loading }) {
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="input-form-grid">
 
           {/* Income — required, must be > 0 */}
           <div>

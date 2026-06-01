@@ -120,7 +120,7 @@ export default function Charts({ breakdown, forecast }) {
   } : null;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+    <div className="charts-grid">
       <div style={cardStyle}>
         <p style={cardTitle}>Expense Split</p>
         <Doughnut data={pieData} options={doughnutOptions} />

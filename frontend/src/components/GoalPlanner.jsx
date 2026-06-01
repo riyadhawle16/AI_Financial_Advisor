@@ -192,7 +192,7 @@ export default function GoalPlanner() {
       {result && (
         <div className="fade-in" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Summary metrics */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+          <div className="goal-metric-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
             {[
               { label: "Target Amount",       value: fmt(result.target_amount),          color: "#3B82F6" },
               { label: "Required Monthly SIP", value: fmt(result.required_monthly_sip),   color: "#10B981" },

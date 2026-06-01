@@ -95,3 +95,217 @@ body {
 .pulse-glow {
   animation: pulseGlow 2s ease-in-out infinite;
 }
+
+/* ── Responsive layout helpers ───────────────────────────────────────────── */
+
+/* Nav header */
+@media (max-width: 640px) {
+  .nav-inner {
+    flex-wrap: wrap;
+    height: auto !important;
+    padding: 10px 16px !important;
+    gap: 10px;
+  }
+  .nav-tabs {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start !important;
+    padding: 4px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab-btn {
+    white-space: nowrap;
+    padding: 7px 14px !important;
+    font-size: 11px !important;
+  }
+  .nav-status { font-size: 11px; }
+}
+
+/* Dashboard 2-col → 1-col */
+.dashboard-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  .dashboard-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Charts 3-col → 1-col */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .charts-grid > *:last-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) {
+  .charts-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* InputForm 2-col → 1-col */
+.input-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 500px) {
+  .input-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Simulator 3-col → 1-col */
+.simulator-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) {
+  .simulator-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Portfolio inputs 3-col → 1-col */
+.portfolio-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 640px) {
+  .portfolio-input-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Portfolio results 2-col → 1-col */
+.portfolio-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 640px) {
+  .portfolio-result-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .portfolio-result-grid .portfolio-summary {
+    grid-column: 1 !important;
+  }
+}
+
+/* ScoreCard flex → wrap on tiny screens */
+@media (max-width: 400px) {
+  .scorecard-inner {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center;
+  }
+}
+
+/* Financial Twin scenario cards — dynamic grid collapse */
+.twin-scenario-grid {
+  display: grid;
+  gap: 12px;
+}
+@media (max-width: 768px) {
+  .twin-scenario-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+@media (max-width: 500px) {
+  .twin-scenario-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Twin metric tiles */
+.twin-metric-grid {
+  display: grid;
+  gap: 10px;
+}
+@media (max-width: 500px) {
+  .twin-metric-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* Twin SIP charts 2-col → 1-col */
+.twin-chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 700px) {
+  .twin-chart-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Chatbot full-width on mobile */
+@media (max-width: 640px) {
+  .chatbot-wrap {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .chat-messages {
+    height: 320px !important;
+  }
+}
+
+/* Main content padding on mobile */
+@media (max-width: 640px) {
+  .main-content {
+    padding: 16px 12px !important;
+  }
+}
+
+/* Dashboard header flex wrap */
+@media (max-width: 600px) {
+  .dashboard-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .dashboard-title {
+    font-size: 22px !important;
+  }
+}
+
+/* Scenario tab buttons scroll on mobile */
+@media (max-width: 640px) {
+  .scenario-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .scenario-tabs::-webkit-scrollbar { display: none; }
+  .scenario-tab-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Goal planner metric grid */
+@media (max-width: 500px) {
+  .goal-metric-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}

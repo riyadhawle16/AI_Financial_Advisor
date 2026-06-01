@@ -39,7 +39,7 @@ export default function Chatbot({ riskTolerance, financialScore, insights }) {
   };
 
   return (
-    <div className="fade-in" style={{ maxWidth: 700, margin: "0 auto" }}>
+    <div className="chatbot-wrap fade-in" style={{ maxWidth: 700, margin: "0 auto" }}>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#3B82F6", margin: "0 0 6px" }}>
@@ -61,6 +61,7 @@ export default function Chatbot({ riskTolerance, financialScore, insights }) {
         {/* Messages */}
         <div
           ref={listRef}
+          className="chat-messages"
           style={{
             height: 400, overflowY: "auto", padding: 20,
             display: "flex", flexDirection: "column", gap: 12,

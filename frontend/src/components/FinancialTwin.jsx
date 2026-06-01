@@ -121,7 +121,7 @@ function ExpenseReductionView({ result }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Scenario cards */}
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${allSeries.length}, 1fr)`, gap: 12 }}>
+      <div className="twin-scenario-grid" style={{ gridTemplateColumns: `repeat(${allSeries.length}, 1fr)` }}>
         {allSeries.map((s, i) => <ScenarioCard key={i} data={s} colorIdx={i} isBaseline={i === 0} />)}
       </div>
 
@@ -132,7 +132,7 @@ function ExpenseReductionView({ result }) {
           onChange={e => setTimelineYear(CHECKPOINTS[+e.target.value])}
           style={{ width: "100%", accentColor: "#3B82F6", marginBottom: 16 }}
         />
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${allSeries.length}, 1fr)`, gap: 10 }}>
+        <div className="twin-metric-grid" style={{ gridTemplateColumns: `repeat(${allSeries.length}, 1fr)` }}>
           {allSeries.map((s, i) => (
             <MetricTile key={i} label={s.label} value={fmt(s.timeline[yearIdx] || 0)} color={SCENARIO_COLORS[i]?.badge} sub={`at ${timelineYear}yr`} />
           ))}
@@ -198,7 +198,7 @@ function SipGrowthView({ result }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${projections.length}, 1fr)`, gap: 12 }}>
+      <div className="twin-scenario-grid" style={{ gridTemplateColumns: `repeat(${projections.length}, 1fr)` }}>
         {projections.map((p, i) => <ScenarioCard key={i} data={p} colorIdx={i} isBaseline={i === 0} />)}
       </div>
 
@@ -209,14 +209,14 @@ function SipGrowthView({ result }) {
           onChange={e => setTimelineYear(CHECKPOINTS[+e.target.value])}
           style={{ width: "100%", accentColor: "#3B82F6", marginBottom: 16 }}
         />
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${projections.length}, 1fr)`, gap: 10 }}>
+        <div className="twin-metric-grid" style={{ gridTemplateColumns: `repeat(${projections.length}, 1fr)` }}>
           {projections.map((p, i) => (
             <MetricTile key={i} label={p.label} value={fmt(p.timeline[yearIdx] || 0)} color={SCENARIO_COLORS[i]?.badge} sub={`corpus at ${timelineYear}yr`} />
           ))}
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="twin-chart-grid">
         <div style={glass}>
           <p style={{ ...label, marginBottom: 16 }}>Corpus Growth Over Time</p>
           <Line data={lineData} options={chartOpts} />
@@ -269,7 +269,7 @@ function InflationView({ result }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${results.length}, 1fr)`, gap: 12 }}>
+      <div className="twin-scenario-grid" style={{ gridTemplateColumns: `repeat(${results.length}, 1fr)` }}>
         {results.map((r, i) => (
           <div key={i} style={{ ...glass, background: `${SCENARIO_COLORS[i + 1]?.badge}08`, border: `1px solid ${SCENARIO_COLORS[i + 1]?.badge}33` }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
@@ -305,7 +305,7 @@ function InflationView({ result }) {
           onChange={e => setTimelineYear(CHECKPOINTS[+e.target.value])}
           style={{ width: "100%", accentColor: "#3B82F6", marginBottom: 16 }}
         />
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${results.length}, 1fr)`, gap: 10 }}>
+        <div className="twin-metric-grid" style={{ gridTemplateColumns: `repeat(${results.length}, 1fr)` }}>
           {results.map((r, i) => (
             <MetricTile key={i} label={r.label} value={fmt(r.timeline[yearIdx] || 0)} color={SCENARIO_COLORS[i + 1]?.badge} sub="real value" />
           ))}
@@ -350,7 +350,7 @@ function SalaryGrowthView({ result }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(allSeries.length, 3)}, 1fr)`, gap: 12 }}>
+      <div className="twin-scenario-grid" style={{ gridTemplateColumns: `repeat(${Math.min(allSeries.length, 3)}, 1fr)` }}>
         {allSeries.map((s, i) => <ScenarioCard key={i} data={s} colorIdx={i} isBaseline={i === 0} />)}
       </div>
       <div style={glass}>
@@ -358,7 +358,7 @@ function SalaryGrowthView({ result }) {
         <input type="range" min="0" max="3" step="1" value={CHECKPOINTS.indexOf(timelineYear)}
           onChange={e => setTimelineYear(CHECKPOINTS[+e.target.value])}
           style={{ width: "100%", accentColor: "#3B82F6", marginBottom: 16 }} />
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(allSeries.length, 3)}, 1fr)`, gap: 10 }}>
+        <div className="twin-metric-grid" style={{ gridTemplateColumns: `repeat(${Math.min(allSeries.length, 3)}, 1fr)` }}>
           {allSeries.map((s, i) => (
             <MetricTile key={i} label={s.label} value={fmt(s.timeline[yearIdx] || 0)} color={SCENARIO_COLORS[i]?.badge} sub={`at ${timelineYear}yr`} />
           ))}
@@ -412,7 +412,7 @@ function JobLossView({ result }) {
       </div>
 
       {/* Scenario cards */}
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${results.length}, 1fr)`, gap: 12 }}>
+      <div className="twin-scenario-grid" style={{ gridTemplateColumns: `repeat(${results.length}, 1fr)` }}>
         {results.map((r, i) => {
           const color = r.fund_covers === "Yes" ? "#10B981" : "#EF4444";
           return (
@@ -458,7 +458,7 @@ function EmergencyView({ result }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${results.length}, 1fr)`, gap: 12 }}>
+      <div className="twin-scenario-grid" style={{ gridTemplateColumns: `repeat(${results.length}, 1fr)` }}>
         {results.map((r, i) => {
           const color = r.covered_by_savings ? "#10B981" : "#EF4444";
           return (
@@ -621,11 +621,12 @@ export default function FinancialTwin() {
       </div>
 
       {/* Scenario type selector */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+      <div className="scenario-tabs" style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {SCENARIO_TABS.map(({ id, icon, label: lbl }) => {
           const active = scenarioType === id;
           return (
             <button key={id} onClick={() => { setScenarioType(id); setResult(null); }}
+              className="scenario-tab-btn"
               style={{
                 padding: "10px 18px", borderRadius: 50, border: "none", cursor: "pointer",
                 fontSize: 13, fontWeight: active ? 600 : 400,

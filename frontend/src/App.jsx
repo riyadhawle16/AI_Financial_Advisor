@@ -29,7 +29,7 @@ function App() {
         backdropFilter: "blur(12px)",
         position: "sticky", top: 0, zIndex: 50,
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
+        <div className="nav-inner" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
           {/* Logo */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{
@@ -47,7 +47,7 @@ function App() {
           </div>
 
           {/* Pill tabs */}
-          <div role="tablist" aria-label="Navigation" style={{
+          <div role="tablist" aria-label="Navigation" className="nav-tabs" style={{
             display: "flex", gap: 4,
             background: "rgba(30,41,59,0.6)",
             borderRadius: 50, padding: "4px",
@@ -59,6 +59,7 @@ function App() {
                 <button key={id} role="tab"
                   aria-selected={active ? "true" : "false"}
                   onClick={() => setActiveTab(id)}
+                  className="nav-tab-btn"
                   style={{
                     padding: "8px 18px", borderRadius: 50, border: "none",
                     cursor: "pointer", fontSize: 12,
@@ -75,7 +76,7 @@ function App() {
           </div>
 
           {/* Status */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#10B981" }}>
+          <div className="nav-status" style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#10B981" }}>
             <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 6px #10B981" }} />
             AI Online
           </div>
@@ -83,7 +84,7 @@ function App() {
       </header>
 
       {/* Tab content */}
-      <main style={{
+      <main className="main-content" style={{
         maxWidth: activeTab === "Simulator" ? 1400 : 1200,
         margin: "0 auto", padding: "32px 24px"
       }}>

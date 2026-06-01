@@ -19,7 +19,7 @@ export default function ScoreCard({ score }) {
         Financial Health Score
       </p>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+      <div className="scorecard-inner" style={{ display: "flex", alignItems: "center", gap: 24 }}>
         {/* Radial gauge */}
         <div style={{ position: "relative", width: 130, height: 130, flexShrink: 0 }}>
           <svg width="130" height="130" style={{ transform: "rotate(-90deg)" }}>
