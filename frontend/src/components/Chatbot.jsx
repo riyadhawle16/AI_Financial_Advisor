@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { chatFinance } from "../services/api";
+import { chatFinance, getApiErrorMessage } from "../services/api";
 
 const WELCOME = "Hi! I'm your AI Financial Advisor. Ask me anything about investing, budgeting, debt, or savings.";
 
@@ -31,7 +31,7 @@ export default function Chatbot({ riskTolerance, financialScore, insights }) {
       });
       setMessages((prev) => [...prev, { id: Date.now() + 1, from: "bot", text: res.data.reply }]);
     } catch (err) {
-      setError(err?.response?.data?.detail?.[0]?.msg || "Chat failed. The server may be waking up — wait a moment and try again.");
+      setError(getApiErrorMessage(err, "Chat unavailable right now. Please try again."));
       setMessages((prev) => [...prev, { id: Date.now() + 2, from: "bot", text: "Sorry, I couldn't process that. Try again." }]);
     } finally {
       setLoading(false);

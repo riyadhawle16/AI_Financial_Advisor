@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
-import { generatePortfolio } from "../services/api.js";
+import { generatePortfolio, getApiErrorMessage } from "../services/api.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -44,7 +44,7 @@ export default function PortfolioGenerator({ defaultScore = null }) {
       });
       setResult(res.data);
     } catch (err) {
-      setError(err?.response?.data?.detail?.[0]?.msg ?? "Something went wrong.");
+      setError(getApiErrorMessage(err, "Portfolio generation unavailable right now."));
     } finally { setLoading(false); }
   };
 

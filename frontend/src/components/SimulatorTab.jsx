@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { simulateInvestment } from "../services/api.js";
+import { simulateInvestment, getApiErrorMessage } from "../services/api.js";
 import FinancialTwin from "./FinancialTwin.jsx";
 
 const inputStyle = {
@@ -53,7 +53,7 @@ export default function SimulatorTab() {
       setResult(res.data.future_value);
       setError(null);
     } catch (err) {
-      setError(err?.response?.data?.detail?.[0]?.msg ?? "Something went wrong. Please try again.");
+      setError(getApiErrorMessage(err, "Simulation unavailable right now."));
       setResult(null);
     } finally {
       setLoading(false);

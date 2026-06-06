@@ -1,26 +1,22 @@
 import axios from "axios";
 
-const RENDER_API = "https://ai-financial-advisor-backend-269i.onrender.com";
-
-function resolveApiBaseUrl() {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    if (host === "localhost" || host === "127.0.0.1") {
-      return "/api";
-    }
-  }
-
-  return RENDER_API;
-}
-
 const API = axios.create({
-  baseURL: resolveApiBaseUrl(),
-  timeout: 90000,
+  baseURL: "/api",
+  timeout: 120000,
 });
+
+export function getApiErrorMessage(err, fallback = "Something went wrong. Please try again.") {
+  const detail = err?.response?.data?.detail;
+  if (Array.isArray(detail) && detail[0]?.msg) return detail[0].msg;
+  if (typeof detail === "string") return detail;
+  if (err?.code === "ECONNABORTED") {
+    return "Server is waking up. Please wait 30 seconds and try again.";
+  }
+  if (!err?.response) {
+    return "Server is waking up. Please wait 30 seconds and try again.";
+  }
+  return fallback;
+}
 
 export const analyzeFinance     = (data) => API.post("/analyze", data);
 export const forecastFinance    = (data) => API.post("/forecast", data);
@@ -30,5 +26,4 @@ export const financialTwin      = (data) => API.post("/financial-twin", data);
 export const goalPlanner        = (data) => API.post("/goal-planner", data);
 export const generatePortfolio  = (data) => API.post("/portfolio", data);
 export const downloadReport     = (data) => API.post("/report", data, { responseType: "blob" });
-
-export const pingBackend = () => API.get("/");
+export const pingBackend        = () => API.get("/");

@@ -4,7 +4,7 @@ import {
   PointElement, LineElement, Tooltip, Legend, Filler
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { goalPlanner } from "../services/api.js";
+import { goalPlanner, getApiErrorMessage } from "../services/api.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler);
 
@@ -64,7 +64,7 @@ export default function GoalPlanner() {
       });
       setResult(res.data);
     } catch (err) {
-      setError(err?.response?.data?.detail?.[0]?.msg ?? "Something went wrong.");
+      setError(getApiErrorMessage(err, "Goal planning unavailable right now."));
     } finally { setLoading(false); }
   };
 

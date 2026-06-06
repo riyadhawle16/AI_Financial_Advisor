@@ -5,7 +5,7 @@ import {
   Tooltip, Legend, Filler,
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
-import { financialTwin } from "../services/api.js";
+import { financialTwin, getApiErrorMessage } from "../services/api.js";
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement,
@@ -585,7 +585,7 @@ export default function FinancialTwin() {
       });
       setResult(res.data);
     } catch (err) {
-      setError(err?.response?.data?.detail?.[0]?.msg ?? "Something went wrong. Please try again.");
+      setError(getApiErrorMessage(err, "Financial twin unavailable right now."));
     } finally {
       setLoading(false);
     }
