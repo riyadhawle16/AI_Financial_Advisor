@@ -1,14 +1,26 @@
 import axios from "axios";
 
-// Local dev uses Vite proxy (/api → localhost:8000).
-// Production uses Render backend (set VITE_API_URL in Vercel for flexibility).
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV
-    ? "/api"
-    : "https://ai-financial-advisor-backend-269i.onrender.com");
+const RENDER_API = "https://ai-financial-advisor-backend-269i.onrender.com";
 
-const API = axios.create({ baseURL: API_BASE_URL });
+function resolveApiBaseUrl() {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host === "localhost" || host === "127.0.0.1") {
+      return "/api";
+    }
+  }
+
+  return RENDER_API;
+}
+
+const API = axios.create({
+  baseURL: resolveApiBaseUrl(),
+  timeout: 90000,
+});
 
 export const analyzeFinance     = (data) => API.post("/analyze", data);
 export const forecastFinance    = (data) => API.post("/forecast", data);
@@ -18,3 +30,5 @@ export const financialTwin      = (data) => API.post("/financial-twin", data);
 export const goalPlanner        = (data) => API.post("/goal-planner", data);
 export const generatePortfolio  = (data) => API.post("/portfolio", data);
 export const downloadReport     = (data) => API.post("/report", data, { responseType: "blob" });
+
+export const pingBackend = () => API.get("/");

@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Dashboard from "./components/Dashboard.jsx";
 import SimulatorTab from "./components/SimulatorTab.jsx";
 import Chatbot from "./components/Chatbot.jsx";
 import GoalPlanner from "./components/GoalPlanner.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import { pingBackend } from "./services/api.js";
 
 const TABS = [
   { id: "Dashboard",    icon: "⬡" },
@@ -18,6 +19,10 @@ function App() {
   const [financialScore, setFinancialScore] = useState(null);
   const [riskTolerance, setRiskTolerance] = useState("medium");
   const [insights, setInsights] = useState([]);
+
+  useEffect(() => {
+    pingBackend().catch(() => {});
+  }, []);
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0B1220 0%, #0f1a2e 50%, #0B1220 100%)" }}>
