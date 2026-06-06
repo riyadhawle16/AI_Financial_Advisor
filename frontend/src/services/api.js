@@ -1,6 +1,14 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "/api" });
+// Local dev uses Vite proxy (/api → localhost:8000).
+// Production uses Render backend (set VITE_API_URL in Vercel for flexibility).
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV
+    ? "/api"
+    : "https://ai-financial-advisor-backend-269i.onrender.com");
+
+const API = axios.create({ baseURL: API_BASE_URL });
 
 export const analyzeFinance     = (data) => API.post("/analyze", data);
 export const forecastFinance    = (data) => API.post("/forecast", data);

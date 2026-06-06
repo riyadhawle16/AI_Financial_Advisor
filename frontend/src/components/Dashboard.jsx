@@ -60,7 +60,10 @@ export default function Dashboard({ onAnalyze }) {
         setForecastError(fErr?.response?.data?.detail?.[0]?.msg || "Forecast failed.");
       }
     } catch (err) {
-      setError(err?.response?.data?.detail?.[0]?.msg || "Unable to analyze. Ensure backend is running on port 8000.");
+      setError(
+        err?.response?.data?.detail?.[0]?.msg ||
+          "Unable to reach the server. If this is your first visit, wait ~30s (backend may be waking up) and try again."
+      );
     } finally { setLoading(false); }
   };
 

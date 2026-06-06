@@ -31,7 +31,7 @@ export default function Chatbot({ riskTolerance, financialScore, insights }) {
       });
       setMessages((prev) => [...prev, { id: Date.now() + 1, from: "bot", text: res.data.reply }]);
     } catch (err) {
-      setError(err?.response?.data?.detail?.[0]?.msg || "Chat failed. Make sure backend is running.");
+      setError(err?.response?.data?.detail?.[0]?.msg || "Chat failed. The server may be waking up — wait a moment and try again.");
       setMessages((prev) => [...prev, { id: Date.now() + 2, from: "bot", text: "Sorry, I couldn't process that. Try again." }]);
     } finally {
       setLoading(false);
