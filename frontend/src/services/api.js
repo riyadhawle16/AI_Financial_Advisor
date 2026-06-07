@@ -3,10 +3,16 @@ import axios from "axios";
 const PRODUCTION_API =
   "https://ai-financial-advisor-backend-269i.onrender.com";
 
+function resolveApiBaseUrl() {
+  const envUrl = import.meta.env.VITE_API_URL;
+  // Ignore relative values like "/api" — they break on Vercel without a proxy.
+  if (typeof envUrl === "string" && envUrl.startsWith("http")) return envUrl;
+  if (import.meta.env.PROD) return PRODUCTION_API;
+  return "/api";
+}
+
 const API = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL ||
-    (import.meta.env.PROD ? PRODUCTION_API : "/api"),
+  baseURL: resolveApiBaseUrl(),
   timeout: 120000,
 });
 
