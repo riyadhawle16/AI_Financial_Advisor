@@ -1,7 +1,12 @@
 import axios from "axios";
 
+const PRODUCTION_API =
+  "https://ai-financial-advisor-backend-269i.onrender.com";
+
 const API = axios.create({
-  baseURL: "/api",
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.PROD ? PRODUCTION_API : "/api"),
   timeout: 120000,
 });
 
