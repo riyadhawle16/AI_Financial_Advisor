@@ -1,11 +1,15 @@
 import logging
 import io
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# ── DB init on startup ────────────────────────────────────────────────────────
+from database import init_db
+from routers.auth_router import router as auth_router
 
 try:
     from .schemas.user_schema import UserInput
@@ -78,6 +82,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Mount routers ─────────────────────────────────────────────────────────────
+app.include_router(auth_router)
+
+# ── Initialize DB tables on startup ──────────────────────────────────────────
+@app.on_event("startup")
+def startup_event():
+    init_db()
+    logger.info("Database tables initialized.")
 
 
 # ── Health / root ─────────────────────────────────────────────────────────────

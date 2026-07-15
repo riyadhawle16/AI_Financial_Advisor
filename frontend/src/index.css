@@ -122,6 +122,7 @@ body {
     font-size: 11px !important;
   }
   .nav-status { font-size: 11px; }
+  .status-text { display: inline !important; }
 }
 
 /* Dashboard 2-col → 1-col */
