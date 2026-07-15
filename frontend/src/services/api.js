@@ -69,7 +69,22 @@ export const logoutUser     = ()     => API.post("/auth/logout");
 export const getMe          = ()     => API.get("/auth/me");
 export const changePassword = (data) => API.post("/auth/change-password", data);
 
-// ── Existing financial endpoints ──────────────────────────────────────────────
+// ── History endpoints ─────────────────────────────────────────────────────────
+export const getHistorySummary    = ()           => API.get("/history/summary");
+export const getAnalysisHistory   = (p = {})     => API.get("/history/analyses", { params: p });
+export const getAnalysisById      = (id)         => API.get(`/history/analyses/${id}`);
+export const deleteAnalysis       = (id)         => API.delete(`/history/analyses/${id}`);
+export const getChatHistory       = (p = {})     => API.get("/history/chat", { params: p });
+export const clearChatHistory     = ()           => API.delete("/history/chat");
+export const getTwinRunHistory    = (p = {})     => API.get("/history/twin-runs", { params: p });
+export const deleteTwinRun        = (id)         => API.delete(`/history/twin-runs/${id}`);
+export const getGoalHistory       = (p = {})     => API.get("/history/goals", { params: p });
+export const deleteGoal           = (id)         => API.delete(`/history/goals/${id}`);
+export const getPortfolioHistory  = (p = {})     => API.get("/history/portfolios", { params: p });
+export const deletePortfolio      = (id)         => API.delete(`/history/portfolios/${id}`);
+export const getReportHistory     = (p = {})     => API.get("/history/reports", { params: p });
+export const regenerateReport     = (id)         => API.get(`/history/reports/${id}/regenerate`, { responseType: "blob" });
+export const getRoadmapHistory    = (p = {})     => API.get("/history/roadmaps", { params: p });
 export const analyzeFinance     = (data) => API.post("/analyze", data);
 export const forecastFinance    = (data) => API.post("/forecast", data);
 export const chatFinance        = (data) => API.post("/chat", data);
