@@ -208,3 +208,17 @@ def get_current_user_from_db(
         return user
     finally:
         db.close()
+
+
+def require_admin(current_user=Depends(get_current_user_from_db)):
+    """
+    FastAPI dependency — only allows admin users through.
+    Raises 403 for regular users.
+    Usage: admin_user = Depends(require_admin)
+    """
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required. You do not have permission to perform this action.",
+        )
+    return current_user

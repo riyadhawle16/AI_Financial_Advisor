@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 from database import init_db, get_db, SessionLocal
 from routers.auth_router    import router as auth_router
 from routers.history_router import router as history_router
+from routers.admin_router   import router as admin_router
 
 from schemas.user_schema         import UserInput
 from schemas.forecast_schema     import ForecastInput
@@ -65,6 +66,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(history_router)
+app.include_router(admin_router)
 
 @app.on_event("startup")
 def startup_event():

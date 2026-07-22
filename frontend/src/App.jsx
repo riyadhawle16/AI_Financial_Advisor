@@ -11,6 +11,7 @@ import UserProfile       from "./components/UserProfile.jsx";
 import ProtectedRoute    from "./components/ProtectedRoute.jsx";
 import LoginPage         from "./pages/LoginPage.jsx";
 import RegisterPage      from "./pages/RegisterPage.jsx";
+import UserDashboardPage from "./pages/UserDashboardPage.jsx";
 
 import { useAuth }       from "./context/AuthContext.jsx";
 import { pingBackend }   from "./services/api.js";
@@ -20,6 +21,7 @@ const TABS = [
   { id: "Simulator",    icon: "◈" },
   { id: "Goal Planner", icon: "🎯" },
   { id: "Chat",         icon: "◎" },
+  { id: "My Profile",   icon: "👤" },
 ];
 
 // ── Main authenticated shell ──────────────────────────────────────────────────
@@ -110,6 +112,11 @@ function AppShell() {
         {activeTab === "Chat" && (
           <ErrorBoundary>
             <Chatbot riskTolerance={riskTolerance} financialScore={financialScore} insights={insights} />
+          </ErrorBoundary>
+        )}
+        {activeTab === "My Profile" && (
+          <ErrorBoundary>
+            <UserDashboardPage />
           </ErrorBoundary>
         )}
       </main>
