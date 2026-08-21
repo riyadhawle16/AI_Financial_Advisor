@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://ai-financial-advisor-backend-269i.onrender.com/:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }
