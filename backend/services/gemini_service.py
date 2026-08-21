@@ -1,8 +1,3 @@
-"""
-AI Chatbot Service — powered by Groq (llama-3.3-70b-versatile)
-Falls back gracefully to rule-based chatbot if Groq is unavailable.
-"""
-
 import os
 import logging
 from pathlib import Path
@@ -10,13 +5,11 @@ from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
-# Load .env from backend/ regardless of where uvicorn is launched from
 _env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=_env_path, override=True)
 
 _api_key = os.getenv("GROQ_API_KEY")
 
-# ── Financial Advisor system prompt ──────────────────────────────────────────
 SYSTEM_PROMPT = """You are FinanceAI Copilot, a friendly and knowledgeable AI Financial Advisor.
 
 Your personality:
@@ -44,17 +37,15 @@ Rules:
 - Keep responses under 300 words unless a detailed plan is explicitly requested
 """
 
-# ── Initialize Groq client ────────────────────────────────────────────────────
 _groq_client = None
 _groq_available = False
 _groq_init_error = None
-_model = "llama-3.3-70b-versatile"
+_model = "llama3-70b-8192"
 
 if _api_key and _api_key not in ("YOUR_REAL_GROQ_API_KEY_HERE", ""):
     try:
         from groq import Groq
         _groq_client = Groq(api_key=_api_key)
-        # Quick connectivity probe
         _probe = _groq_client.chat.completions.create(
             model=_model,
             messages=[{"role": "user", "content": "Reply with the single word: ready"}],
@@ -67,32 +58,21 @@ if _api_key and _api_key not in ("YOUR_REAL_GROQ_API_KEY_HERE", ""):
         _groq_init_error = str(e)
         logger.warning("Groq initialization failed: %s", _groq_init_error)
 else:
-    _groq_init_error = (
-        "GROQ_API_KEY is missing or placeholder. "
-        "Get a free key at https://console.groq.com and set it in backend/.env"
-    )
+    _groq_init_error = "GROQ_API_KEY is missing. Set it in backend/.env"
     logger.warning(_groq_init_error)
 
 
 def is_gemini_available() -> bool:
-    """Returns True if the AI backend (Groq) is ready."""
     return _groq_available
 
 
 def get_gemini_init_error() -> str | None:
-    """Returns the init error message if Groq failed to start."""
     return _groq_init_error
 
 
 def get_gemini_response(prompt: str) -> str:
-    """
-    Send a prompt to Groq and return the response text.
-    Raises RuntimeError if Groq is not available.
-    """
     if not _groq_available or _groq_client is None:
-        raise RuntimeError(
-            f"Groq is not available. {_groq_init_error or 'Unknown error.'}"
-        )
+        raise RuntimeError(f"Groq is not available. {_groq_init_error or 'Unknown error.'}")
 
     response = _groq_client.chat.completions.create(
         model=_model,
@@ -114,7 +94,6 @@ def build_chat_prompt(
     recommendations: list[str] | None = None,
     roadmap: list | None = None,
 ) -> str:
-    """Build a context-rich prompt for the financial copilot."""
     context_parts = []
 
     if financial_score is not None:

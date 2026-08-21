@@ -91,6 +91,16 @@ export default function UserProfile() {
           {/* Menu items */}
           <div style={{ padding: "6px 0" }}>
             <button
+              onClick={() => { setOpen(false); navigate("/app"); }}
+              style={{ width: "100%", padding: "10px 16px", background: "none", border: "none",
+                cursor: "pointer", textAlign: "left", fontSize: 13, color: "#CBD5E1", fontWeight: 500,
+                display: "flex", alignItems: "center", gap: 10, transition: "background 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(59,130,246,0.08)"}
+              onMouseLeave={e => e.currentTarget.style.background = "none"}>
+              👤 My Profile & History
+            </button>
+
+            <button
               onClick={handleLogout}
               disabled={busy}
               style={{ width: "100%", padding: "10px 16px", background: "none", border: "none",
@@ -104,7 +114,7 @@ export default function UserProfile() {
                 ? <><div style={{ width: 14, height: 14, borderRadius: "50%",
                     border: "2px solid rgba(239,68,68,0.3)", borderTopColor: "#EF4444",
                     animation: "spin 0.8s linear infinite" }} />Signing out…</>
-                : <><span>⬡</span> Sign Out</>}
+                : <>⬡ Sign Out</>}
             </button>
           </div>
         </div>
