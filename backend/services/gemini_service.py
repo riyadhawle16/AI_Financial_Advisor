@@ -40,7 +40,7 @@ Rules:
 _groq_client = None
 _groq_available = False
 _groq_init_error = None
-_model = "llama3-70b-8192"
+_model = "openai/gpt-oss-120b"
 
 if _api_key and _api_key not in ("YOUR_REAL_GROQ_API_KEY_HERE", ""):
     try:
@@ -51,7 +51,7 @@ if _api_key and _api_key not in ("YOUR_REAL_GROQ_API_KEY_HERE", ""):
             messages=[{"role": "user", "content": "Reply with the single word: ready"}],
             max_tokens=5,
         )
-        if _probe.choices[0].message.content:
+        if _probe.choices[0].message.content is not None:
             _groq_available = True
             logger.info("Groq initialized successfully. Model: %s", _model)
     except Exception as e:
