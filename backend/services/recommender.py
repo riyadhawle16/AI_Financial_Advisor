@@ -1,90 +1,128 @@
 LIFESTYLE_INFLATION_INCOME_THRESHOLD = 50_000
-LIFESTYLE_INFLATION_SAVINGS_RATIO = 0.1
-DEBT_PRIORITY_MULTIPLIER = 3
-CRITICAL_OVERSPEND_RATIO = 0.9
-STRONG_POSITION_SAVINGS_RATIO = 0.3
-STRONG_POSITION_SCORE_THRESHOLD = 70
+LIFESTYLE_INFLATION_SAVINGS_RATIO    = 0.1
+DEBT_PRIORITY_MULTIPLIER             = 3
+CRITICAL_OVERSPEND_RATIO             = 0.9
+STRONG_POSITION_SAVINGS_RATIO        = 0.3
+STRONG_POSITION_SCORE_THRESHOLD      = 70
 
 
-def generate_recommendations(data, score):
+# ── Investment vehicles per risk tier ─────────────────────────────────────────
+_INVEST_ADVICE = {
+    "low": {
+        "primary":   "Invest in Fixed Deposits, PPF, or government bonds for capital protection.",
+        "sip":       "Start a debt mutual fund SIP — stable 6-8% returns with low volatility.",
+        "emergency": "Keep 6 months of expenses in a liquid fund or high-yield savings account.",
+        "growth":    "Allocate up to 10% in Sovereign Gold Bonds for inflation hedging.",
+        "advanced":  "Max out Section 80C through PPF and NSC for tax-efficient safe returns.",
+    },
+    "medium": {
+        "primary":   "Invest via SIP in large-cap or flexi-cap mutual funds for balanced 10-12% returns.",
+        "sip":       "Start a monthly SIP of at least 20% of your surplus — time in market beats timing.",
+        "emergency": "Keep 3-6 months of expenses in a liquid fund before increasing equity exposure.",
+        "growth":    "Allocate 60% equity / 30% debt / 10% gold for diversified growth.",
+        "advanced":  "Use ELSS mutual funds to save taxes under Section 80C while building equity wealth.",
+    },
+    "high": {
+        "primary":   "Invest aggressively in small/mid-cap equity funds and index funds for 14-18% long-term returns.",
+        "sip":       "Run a step-up SIP — increase your monthly SIP amount by 10% every year.",
+        "emergency": "Maintain a 2-3 month liquid buffer only — deploy maximum surplus into growth assets.",
+        "growth":    "Allocate 80% equity (including international funds) / 10% gold / 10% liquid.",
+        "advanced":  "Explore sectoral/thematic funds and direct equity after building a core index fund base.",
+    },
+}
 
-    recommendations = []
 
-    # Financial health advice
+def generate_recommendations(data, score: float) -> list[str]:
+    recs  = []
+    risk  = data.risk_tolerance
+    adv   = _INVEST_ADVICE[risk]
+    ratio = data.expenses / data.income if data.income > 0 else 0
+
+    # 1. Financial health assessment — based on score, NOT risk
     if score < 40:
-        recommendations.append("You are at high financial risk. Reduce expenses immediately.")
+        recs.append("High financial risk detected: reduce expenses and build an emergency fund before investing.")
     elif score < 70:
-        recommendations.append("You have moderate financial health. Increase savings rate.")
+        recs.append("Moderate financial health: increase your savings rate by at least 5% of income this month.")
     else:
-        recommendations.append("You are financially stable. Focus on growing investments.")
+        recs.append("Strong financial position: you are ready to deploy capital into growth investments.")
 
-    # Risk-based investment advice
-    if data.risk_tolerance == "low":
-        recommendations.append("Invest in fixed deposits or bonds.")
-    elif data.risk_tolerance == "medium":
-        recommendations.append("Invest in mutual funds (SIP recommended).")
-    elif data.risk_tolerance == "high":
-        recommendations.append("Consider stocks or high-growth assets.")
+    # 2. Primary investment recommendation — fully driven by risk tolerance
+    recs.append(adv["primary"])
 
-    # Smart insight
-    if data.expenses > data.income * 0.7:
-        recommendations.append("Your expenses exceed 70% of income. Optimize spending.")
+    # 3. SIP / savings action — risk-stratified
+    if data.savings < data.income * 0.1:
+        recs.append(f"Your savings are critically low. {adv['emergency']}")
+    elif score >= 40:
+        recs.append(adv["sip"])
 
-    return recommendations
+    # 4. Expense / debt or advanced investment tip — context + risk
+    if data.debt > data.income * DEBT_PRIORITY_MULTIPLIER:
+        recs.append("Your debt exceeds 3× monthly income — prioritize debt reduction using the avalanche method before any new investments.")
+    elif ratio > 0.7:
+        recs.append("Expenses exceed 70% of income. Cut discretionary spending to free up investable surplus.")
+    else:
+        recs.append(adv["advanced"])
+
+    return recs
 
 
-def generate_insights(data, score):
-    """
-    Lightweight, explainable rules-based insights.
-    Keeps outputs stable and debuggable for a product demo.
-    """
+def generate_insights(data, score: float) -> list[str]:
     insights = []
+    risk     = data.risk_tolerance
+    ratio    = data.expenses / data.income if data.income > 0 else 0
 
-    # Differentiator rules requested
-    if data.expenses > data.income * 0.7:
-        insights.append("Overspending detected: your expenses are over 70% of income.")
+    if ratio > 0.7:
+        insights.append("Overspending detected: your expenses exceed 70% of income.")
 
     if data.savings < data.income * 0.2:
-        insights.append("Low savings rate: your savings are under 20% of income.")
+        insights.append("Low savings rate: you are saving less than 20% of income.")
 
-    # Extra helpful signals
     if data.debt > 0:
-        insights.append("Debt present: prioritize high-interest debt reduction and build an emergency fund.")
+        insights.append("Debt present: prioritize high-interest debt reduction before increasing investment exposure.")
 
+    # Risk-stratified health insight
     if score < 40:
-        insights.append("Financial health is low: focus on expense control and building liquidity first.")
+        insights.append(f"Financial health is low ({risk} risk profile): stabilize cash flow before any investment.")
     elif score < 70:
-        insights.append("Financial health is moderate: increase savings rate and invest gradually based on risk.")
+        if risk == "low":
+            insights.append("Moderate health with low risk tolerance: focus on safe savings instruments and steady debt reduction.")
+        elif risk == "medium":
+            insights.append("Moderate health with balanced risk: start a SIP now and increase savings rate gradually.")
+        else:
+            insights.append("Moderate health but high risk tolerance: build an emergency fund first, then deploy aggressively into equity.")
     else:
-        insights.append("Financial health is strong: consider diversified growth investments for long-term goals.")
+        if risk == "low":
+            insights.append("Strong financial health with conservative risk: maximize PPF, bonds, and tax-saving fixed deposits.")
+        elif risk == "medium":
+            insights.append("Strong financial health with balanced risk: diversify across equity and debt mutual funds.")
+        else:
+            insights.append("Strong financial health with high risk tolerance: deploy maximum surplus into equity, index funds, and sectoral bets.")
 
     return insights
 
 
 def generate_personalized_insights(data, score: float) -> list[str]:
-    """
-    Generate personalized financial insights based on user data and health score.
-    Returns a list of insight strings (may be empty).
-    """
     insights = []
+    risk     = data.risk_tolerance
 
     if data.income == 0:
         return insights
 
-    # Lifestyle inflation: earning well but saving very little
     if data.income > LIFESTYLE_INFLATION_INCOME_THRESHOLD and data.savings / data.income < LIFESTYLE_INFLATION_SAVINGS_RATIO:
-        insights.append("Lifestyle inflation detected: you are earning well but saving very little")
+        insights.append("Lifestyle inflation detected: high income but very low savings rate. Automate savings on salary day.")
 
-    # Debt reduction priority: debt exceeds 3x income
     if data.debt > data.income * DEBT_PRIORITY_MULTIPLIER:
-        insights.append("Debt reduction priority: focus on reducing debt before investing")
+        insights.append("Debt reduction priority: use the avalanche method — pay minimums everywhere, then target highest-interest debt first.")
 
-    # Critical overspending: expenses >= 90% of income
     if data.expenses / data.income >= CRITICAL_OVERSPEND_RATIO:
-        insights.append("Critical overspending: expenses are consuming 90% or more of income")
+        insights.append("Critical overspending: 90%+ of income going to expenses leaves no room for wealth building.")
 
-    # Strong financial position: savings >= 30% of income and score >= 70
     if data.savings / data.income >= STRONG_POSITION_SAVINGS_RATIO and score >= STRONG_POSITION_SCORE_THRESHOLD:
-        insights.append("Strong financial position: consider diversified long-term investments")
+        if risk == "low":
+            insights.append("Strong position with conservative profile: consider laddering Fixed Deposits and maximizing PPF contribution.")
+        elif risk == "medium":
+            insights.append("Strong position with balanced risk: increase SIP amounts and review portfolio rebalancing annually.")
+        else:
+            insights.append("Strong position with high risk tolerance: consider direct equity and international fund exposure for accelerated wealth creation.")
 
     return insights
