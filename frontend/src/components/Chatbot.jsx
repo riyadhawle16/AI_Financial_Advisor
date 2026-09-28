@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { chatFinance, getApiErrorMessage } from "../services/api";
 
 const WELCOME = "Hi! I'm your AI Financial Advisor. Ask me anything about investing, budgeting, debt, or savings.";
@@ -93,7 +95,13 @@ export default function Chatbot({ riskTolerance, financialScore, insights }) {
                 border: m.from === "bot" ? "1px solid rgba(59,130,246,0.15)" : "none",
                 boxShadow: m.from === "user" ? "0 0 12px rgba(59,130,246,0.3)" : "none",
               }}>
-                {m.text}
+                {m.from === "bot" ? (
+                  <div className="chat-markdown">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown>
+                  </div>
+                ) : (
+                  m.text
+                )}
               </div>
             </div>
           ))}
@@ -163,6 +171,58 @@ export default function Chatbot({ riskTolerance, financialScore, insights }) {
         @keyframes bounce {
           0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
           40% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        /* Markdown rendering styles */
+        .chat-markdown { color: #CBD5E1; font-size: 13px; line-height: 1.7; }
+        .chat-markdown p { margin: 0 0 8px; }
+        .chat-markdown p:last-child { margin-bottom: 0; }
+        .chat-markdown h1, .chat-markdown h2, .chat-markdown h3,
+        .chat-markdown h4, .chat-markdown h5, .chat-markdown h6 {
+          color: #F1F5F9; font-weight: 700; margin: 12px 0 6px;
+        }
+        .chat-markdown h1 { font-size: 17px; }
+        .chat-markdown h2 { font-size: 15px; }
+        .chat-markdown h3 { font-size: 14px; color: #93C5FD; }
+        .chat-markdown strong { color: #F1F5F9; font-weight: 700; }
+        .chat-markdown em { color: #94A3B8; font-style: italic; }
+        .chat-markdown ul, .chat-markdown ol {
+          margin: 6px 0 8px; padding-left: 20px;
+        }
+        .chat-markdown li { margin-bottom: 4px; }
+        .chat-markdown code {
+          background: rgba(59,130,246,0.15); color: #93C5FD;
+          padding: 1px 5px; border-radius: 4px; font-size: 12px;
+          font-family: 'Courier New', monospace;
+        }
+        .chat-markdown pre {
+          background: rgba(11,18,32,0.8); border: 1px solid rgba(59,130,246,0.2);
+          border-radius: 8px; padding: 10px 14px; overflow-x: auto; margin: 8px 0;
+        }
+        .chat-markdown pre code {
+          background: none; color: #94A3B8; padding: 0; font-size: 12px;
+        }
+        .chat-markdown blockquote {
+          border-left: 3px solid #3B82F6; margin: 8px 0;
+          padding: 4px 12px; color: #94A3B8;
+          background: rgba(59,130,246,0.05); border-radius: 0 6px 6px 0;
+        }
+        .chat-markdown table {
+          border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 12px;
+        }
+        .chat-markdown th {
+          background: rgba(59,130,246,0.2); color: #93C5FD;
+          padding: 6px 10px; text-align: left; font-weight: 700;
+          border: 1px solid rgba(59,130,246,0.25);
+        }
+        .chat-markdown td {
+          padding: 5px 10px; border: 1px solid rgba(59,130,246,0.12);
+          color: #CBD5E1;
+        }
+        .chat-markdown tr:nth-child(even) td { background: rgba(30,41,59,0.4); }
+        .chat-markdown a { color: #60A5FA; text-decoration: underline; }
+        .chat-markdown hr {
+          border: none; border-top: 1px solid rgba(59,130,246,0.2); margin: 10px 0;
         }
       `}</style>
     </div>
